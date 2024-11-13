@@ -1,0 +1,14 @@
+version: '3.8'
+services: 
+  nextjs:
+    build: 
+     context: .
+     dockerfile: ./docker/dockerfile
+    ports: 
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules 
+    command: ["yarn","dev"]

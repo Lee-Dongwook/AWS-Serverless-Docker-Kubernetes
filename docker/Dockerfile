@@ -1,37 +1,31 @@
-# Install dependencies only when needed
-FROM node:18-alpine AS deps
+# 의존성 설치 및 애플리케이션 빌드
+FROM node:20-alpine as builder
 
+# 작업 디렉토리
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+# 패키지 파일 복사
+COPY .yarn ./.yarn
+COPY package.json yarn.lock .yarnrc.yml ./
 
-RUN yarn install --frozen-lockfile
+# 의존성 설치
+RUN yarn set version berry && yarn install
 
-# Rebuild the source code only when needed
+# 애플리케이션 소스 복사
+COPY . ./
 
-FROM node:18-apline AS builder
-
-WORKDIR /app
-
-COPY . .
-
-COPY --from=deps /app/node_modules ./node_modules
-
+# 애플리케이션 빌드
 RUN yarn build
 
-# Production image, copy all the files and run the app
-
-FROM node:18-apline AS runner
+# 실행 이미지
+FROM node:20-alpine
 
 WORKDIR /app
 
-ENV NODE_ENV Production
-
-COPY --from=builder /app/next.config.mjs ./
-COPY --from=builder /app/pubilc ./public
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_moudles ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
 
 EXPOSE 3000
 
-CMD ["yarn","start"]
+CMD ["yarn","pm2-start"]
