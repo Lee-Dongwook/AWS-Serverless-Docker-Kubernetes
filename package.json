@@ -2,6 +2,11 @@
   "name": "aws-serverless-docker-kubernetes-next",
   "version": "0.1.0",
   "private": true,
+  "workspaces": {
+    "packages": [
+      "serverless"
+    ]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
